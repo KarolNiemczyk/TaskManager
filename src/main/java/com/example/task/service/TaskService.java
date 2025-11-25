@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 
 import java.time.LocalDate;
 
@@ -78,9 +79,14 @@ public class TaskService {
         }
         taskRepository.deleteById(id);
     }
+    public List<TaskDto> getAllTasksForCsv() {
+        // Pageable.unpaged() oznacza brak paginacji
+        return getAllTasks(null, null, null, null, null, Pageable.unpaged()).getContent();
+    }
 
     // Statystyki
     public long countByStatus(TaskStatus status) {
         return status == null ? taskRepository.count() : taskRepository.findByStatus(status, Pageable.unpaged()).getContent().size();
     }
 }
+

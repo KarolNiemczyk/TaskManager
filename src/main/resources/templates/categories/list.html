@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:insert="~{fragments/header}">
+    <title>Kategorie</title>
+</head>
+<body>
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Kategorie</h2>
+        <a th:href="@{/categories/new}" class="btn btn-success btn-lg">+ Nowa kategoria</a>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Nazwa</th>
+            <th>Akcje</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="c : ${categories}">
+            <td th:text="${c.name}">Kategoria</td>
+            <td>
+                <a th:href="@{'/categories/' + ${c.id}}" class="btn btn-primary btn-sm">Edytuj</a>
+                <form th:action="@{'/categories/' + ${c.id}}" method="post" class="d-inline">
+                    <input type="hidden" name="_method" value="DELETE"/>
+                    <button type="submit" class="btn btn-danger btn-sm"
+                            onclick="return confirm('Na pewno usunąć kategorię?')">Usuń
+                    </button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<th:block th:insert="~{fragments/footer}"></th:block>
+</body>
+</html>

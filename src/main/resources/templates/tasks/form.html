@@ -1,24 +1,27 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head th:insert="~{fragments/header}">
-    <title th:text="${isEdit} ? 'Edytuj zadanie' : 'Nowe zadanie'">Nowe zadanie</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head th:replace="fragments/header :: header(${pageTitle})"></head>
 <body>
 <div class="container my-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white text-center">
-                    <h3 class="mb-0" th:text="${isEdit} ? 'Edytuj zadanie' : 'Nowe zadanie'"></h3>
+                    <h3 class="mb-0" th:text="${pageTitle}"></h3>
                 </div>
                 <div class="card-body p-5">
-                    <form th:action="@{${isEdit} ? '/tasks/' + ${taskId} : '/tasks'}"
+                    <form th:action="@{${task.id} != null ? '/tasks/' + ${task.id} : '/tasks'}"
                           th:object="${task}" method="post">
-                        <input type="hidden" name="_method" th:if="${isEdit}" value="PUT"/>
+                        <input type="hidden" name="_method" th:if="${task.id != null}" value="PUT"/>
+
+                        <div th:if="${#fields.hasErrors()}" class="alert alert-danger">
+                            <div th:each="err : ${#fields.errors('*')}" th:text="${err}"></div>
+                        </div>
 
                         <div class="mb-4">
                             <label class="form-label fw-bold">Tytuł *</label>
                             <input type="text" class="form-control form-control-lg" th:field="*{title}" required/>
+                            <div th:if="${#fields.hasErrors('title')}" class="text-danger" th:errors="*{title}"></div>
                         </div>
 
                         <div class="mb-4">
@@ -60,7 +63,6 @@
     </div>
 </div>
 
-<th:block th:insert="~{fragments/footer}"></th:block>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<th:block th:replace="fragments/footer :: footer"></th:block>
 </body>
 </html>

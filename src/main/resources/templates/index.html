@@ -1,27 +1,23 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head th:insert="~{fragments/header}">
-    <title>Task Manager</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head th:replace="fragments/header :: header('Task Manager')"></head>
 <body>
 <div class="container text-center py-5">
     <h1 class="display-3 fw-bold text-primary mb-4">Task Manager</h1>
     <p class="lead mb-5">Prosta aplikacja do zarządzania zadaniami</p>
     <div class="row justify-content-center g-4">
         <div class="col-md-5">
-            <a th:href="@{/tasks}" class="btn btn-primary btn-lg w-100 py-4 shadow-lg">
-                Moje zadania
-            </a>
+            <a th:href="@{/tasks}" class="btn btn-primary btn-lg w-100 py-4 shadow-lg">Moje zadania</a>
         </div>
         <div class="col-md-5">
-            <a th:href="@{/swagger-ui.html}" class="btn btn-outline-secondary btn-lg w-100 py-4 shadow-lg">
-                Dokumentacja API
-            </a>
+            <a th:href="@{/swagger-ui.html}" class="btn btn-outline-secondary btn-lg w-100 py-4 shadow-lg">Dokumentacja API</a>
+        </div>
+        <div class="col-md-5">
+            <a th:href="@{/categories}" class="btn btn-outline-primary btn-lg w-100 py-4 shadow-lg">Kategorie</a>
         </div>
     </div>
 </div>
 
-<th:block th:insert="~{fragments/footer}"></th:block>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<th:block th:replace="fragments/footer :: footer"></th:block>
 </body>
 </html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:insert="~{fragments/header}">
+    <title th:text="${category.id} != null ? 'Edytuj kategorię' : 'Nowa kategoria'">Nowa kategoria</title>
+</head>
+<body>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3 class="mb-0" th:text="${category.id} != null ? 'Edytuj kategorię' : 'Nowa kategoria'"></h3>
+                </div>
+                <div class="card-body p-5">
+                    <form th:action="@{${category.id} != null ? '/categories/' + ${category.id} : '/categories'}"
+                          th:object="${category}" method="post">
+                        <input type="hidden" name="_method" th:if="${category.id != null}" value="PUT"/>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Nazwa *</label>
+                            <input type="text" class="form-control form-control-lg" th:field="*{name}" required/>
+                        </div>
+
+                        <div class="text-end">
+                            <a th:href="@{/categories}" class="btn btn-secondary btn-lg">Anuluj</a>
+                            <button type="submit" class="btn btn-primary btn-lg px-5">Zapisz</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:insert="~{fragments/footer}"></th:block>
+</body>
+</html>
