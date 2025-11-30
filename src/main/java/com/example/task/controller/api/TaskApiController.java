@@ -13,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -35,7 +33,7 @@ import java.util.List;
 public class TaskApiController {
 
     private final TaskService taskService;
-    private final TaskRepository taskRepository; // <-- DODANE!
+    private final TaskRepository taskRepository; // tylko do CSV
 
     @Operation(summary = "Pobierz listę zadań z filtrami i paginacją")
     @GetMapping
@@ -46,28 +44,10 @@ public class TaskApiController {
             @RequestParam(required = false) LocalDate dueDateAfter,
             @RequestParam(required = false) String title,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "9") int size,
             @RequestParam(defaultValue = "createdAt,desc") String sort) {
 
-        page = Math.max(0, page);
-        size = size <= 0 || size > 100 ? 10 : size;
-
-        String[] sortParts = sort.split(",");
-        String property = sortParts[0];
-        Sort.Direction direction = sortParts.length > 1
-                ? Sort.Direction.fromString(sortParts[1].toUpperCase())
-                : Sort.Direction.DESC;
-
-        String javaField = switch (property) {
-            case "due_date", "dueDate"         -> "dueDate";
-            case "created_at", "createdAt"     -> "createdAt";
-            case "updated_at", "updatedAt"     -> "updatedAt";
-            case "id", "title", "status"       -> property;
-            default                            -> "createdAt";
-        };
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, javaField));
-        Page<TaskDto> result = taskService.getAllTasks(status, categoryId, dueDateBefore, dueDateAfter, title, pageable);
+        Page<TaskDto> result = taskService.getTasksWithFilters(status, categoryId, dueDateBefore, dueDateAfter, title, page, size, sort);
         return ResponseEntity.ok(result);
     }
 

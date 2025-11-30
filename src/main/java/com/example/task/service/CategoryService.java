@@ -57,7 +57,6 @@ public class CategoryService {
         if (!categoryRepository.existsById(id)) {
             throw new ResourceNotFoundException("Kategoria o id " + id + " nie istnieje");
         }
-        // ON DELETE SET NULL w SQL → zadania zostaną z category_id = NULL
         categoryRepository.deleteById(id);
     }
 

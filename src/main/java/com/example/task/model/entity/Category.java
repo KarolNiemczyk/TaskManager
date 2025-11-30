@@ -25,6 +25,6 @@ public class Category {
     @Column(columnDefinition = "VARCHAR(7) DEFAULT '#3B82F6'")
     private String color = "#3B82F6";
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "category", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private List<Task> tasks = new ArrayList<>();
 }

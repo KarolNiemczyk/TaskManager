@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="pl">
-<head th:replace="fragments/header :: header(${pageTitle})"></head>
+<head th:replace="~{fragments/header :: header(${pageTitle})}"></head>
 <body>
 <div class="container my-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white text-center">
-                    <h3 class="mb-0" th:text="${pageTitle}"></h3>
+                    <h3 class="mb-0" th:text="${pageTitle}">Nowe zadanie</h3>
                 </div>
                 <div class="card-body p-5">
-                    <form th:action="@{${task.id} != null ? '/tasks/' + ${task.id} : '/tasks'}"
+
+                    <!-- Kluczowa poprawka: akcja zależy od taskId, nie od task.id -->
+                    <form th:action="@{${taskId} != null ? '/tasks/' + ${taskId} : '/tasks'}"
                           th:object="${task}" method="post">
-                        <input type="hidden" name="_method" th:if="${task.id != null}" value="PUT"/>
+                        <input type="hidden" name="_method" th:if="${taskId != null}" value="PUT"/>
 
                         <div th:if="${#fields.hasErrors()}" class="alert alert-danger">
                             <div th:each="err : ${#fields.errors('*')}" th:text="${err}"></div>
@@ -40,7 +42,11 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Termin</label>
-                                <input type="date" class="form-control form-control-lg" th:field="*{dueDate}"/>
+                                <input type="text" class="form-control form-control-lg"
+                                       th:field="*{dueDate}"
+                                       placeholder="yyyy-MM-dd"
+                                       pattern="\d{4}-\d{2}-\d{2}"/>
+                                <div class="form-text">Wprowadź datę w formacie rrrr-mm-dd</div>
                             </div>
                         </div>
 
@@ -48,7 +54,9 @@
                             <label class="form-label fw-bold">Kategoria</label>
                             <select class="form-select form-select-lg" th:field="*{categoryId}">
                                 <option value="">-- bez kategorii --</option>
-                                <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"></option>
+                                <option th:each="c : ${categories}"
+                                        th:value="${c.id}"
+                                        th:text="${c.name}"></option>
                             </select>
                         </div>
 
@@ -63,6 +71,6 @@
     </div>
 </div>
 
-<th:block th:replace="fragments/footer :: footer"></th:block>
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
 </body>
 </html>

@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="pl">
-<head th:replace="fragments/header :: header('Lista zadań')"></head>
+<head th:replace="~{fragments/header :: header('Lista zadań')}"></head>
 <body>
 <div class="container my-4">
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Zadania (<span th:text="${tasks.totalElements}">0</span>)</h2>
         <div class="d-flex gap-2">
@@ -11,11 +12,14 @@
         </div>
     </div>
 
-    <!-- Filtry -->
+    <!-- FILTRY -->
     <form th:action="@{/tasks}" method="get" class="row g-3 mb-4 bg-light p-4 rounded shadow-sm">
+
         <div class="col-md-3">
-            <input type="text" name="title" class="form-control" placeholder="Szukaj po tytule" th:value="${param.title}"/>
+            <input type="text" name="title" class="form-control"
+                   placeholder="Szukaj po tytule" th:value="${param.title}"/>
         </div>
+
         <div class="col-md-2">
             <select name="status" class="form-select">
                 <option value="">Wszystkie statusy</option>
@@ -24,85 +28,143 @@
                 <option value="DONE" th:selected="${param.status == 'DONE'}">Zrobione</option>
             </select>
         </div>
+
         <div class="col-md-3">
             <select name="categoryId" class="form-select">
                 <option value="">Wszystkie kategorie</option>
-                <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}" th:selected="${c.id == param.categoryId}"></option>
+                <option th:each="c : ${categories}"
+                        th:value="${c.id}"
+                        th:text="${c.name}"
+                        th:selected="${c.id == param.categoryId}">
+                </option>
             </select>
         </div>
+
         <div class="col-md-2">
-            <input type="date" name="dueDateBefore" class="form-control" th:value="${param.dueDateBefore}"/>
+            <input type="text" name="dueDateBefore"
+                   class="form-control"
+                   th:value="${param.dueDateBefore}"
+                   placeholder="yyyy-MM-dd"
+                   pattern="\d{4}-\d{2}-\d{2}"/>
         </div>
+
         <div class="col-md-2 d-flex gap-2">
             <button type="submit" class="btn btn-primary w-100">Filtruj</button>
             <a th:href="@{/tasks}" class="btn btn-outline-secondary">Wyczyść</a>
         </div>
+
     </form>
 
-    <!-- Lista zadań -->
+    <!-- BRAK ZADAŃ -->
     <div th:if="${tasks.empty}" class="text-center py-5">
         <h4 class="text-muted">Brak zadań spełniających kryteria</h4>
         <a th:href="@{/tasks/new}" class="btn btn-outline-primary btn-lg">Dodaj pierwsze zadanie</a>
     </div>
 
+    <!-- LISTA ZADAŃ -->
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" th:unless="${tasks.empty}">
         <div class="col" th:each="t : ${tasks.content}">
             <div class="card h-100 shadow card-hover"
-                 th:classappend="${t.status == 'DONE' ? 'status-done' : (t.status == 'IN_PROGRESS' ? 'status-in-progress' : '')}">
+                 th:classappend="${t.status == 'DONE' ? 'status-done' :
+                                  (t.status == 'IN_PROGRESS' ? 'status-in-progress' : '')}">
+
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <h5 class="card-title" th:text="${t.title}">Tytuł</h5>
+
                         <span class="badge fs-6"
-                              th:class="${t.status == 'DONE' ? 'bg-success' : (t.status == 'IN_PROGRESS' ? 'bg-warning text-dark' : 'bg-secondary')}">
+                              th:class="${t.status == 'DONE' ? 'bg-success' :
+                                         (t.status == 'IN_PROGRESS' ? 'bg-warning text-dark' : 'bg-secondary')}">
                             <span th:text="${t.status}">TODO</span>
                         </span>
                     </div>
+
                     <p class="text-muted small" th:text="${t.description} ?: 'Brak opisu'">Brak opisu</p>
+
                     <div class="mt-3 small">
                         <div th:if="${t.categoryName}" class="text-primary">
-                            <i class="bi bi-tag-fill"></i> <strong th:text="${t.categoryName}"></strong>
+                            <i class="bi bi-tag-fill"></i>
+                            <strong th:text="${t.categoryName}"></strong>
                         </div>
+
                         <div th:if="${t.dueDate}" class="text-danger mt-1">
-                            <i class="bi bi-calendar-event"></i> <strong th:text="${#temporals.format(t.dueDate, 'dd.MM.yyyy')}"></strong>
+                            <i class="bi bi-calendar-event"></i>
+                            <strong th:text="${#temporals.format(t.dueDate, 'yyyy-MM-dd')}"></strong>
                         </div>
                     </div>
                 </div>
+
                 <div class="card-footer bg-transparent border-0">
                     <div class="btn-group w-100">
                         <a th:href="@{'/tasks/' + ${t.id}}" class="btn btn-outline-primary btn-sm">Edytuj</a>
-                        <form th:action="@{'/tasks/' + ${t.id}}" method="post" class="d-inline m-0">
-                            <input type="hidden" name="_method" value="DELETE"/>
-                            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Na pewno usunąć zadanie?')">Usuń</button>
+
+                        <form th:action="@{'/tasks/' + ${t.id} + '/delete'}"
+                              method="post"
+                              class="d-inline m-0"
+                              onsubmit="return confirm('Na pewno usunąć zadanie?')">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Usuń</button>
                         </form>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
 
-    <!-- Paginacja -->
-    <nav class="mt-5" th:if="${tasks.totalPages > 1}">
+    <!-- PAGINACJA 100% POPRAWNA -->
+    <nav class="mt-5" th:if="${tasks != null and tasks.totalPages > 1}">
         <ul class="pagination justify-content-center">
+
+            <!-- PIERWSZA -->
             <li class="page-item" th:classappend="${tasks.first} ? 'disabled'">
-                <a class="page-link" th:href="@{/tasks(page=0, ${currentParams})}">« Pierwsza</a>
+                <a class="page-link"
+                   th:href="@{|/tasks?page=0${currentParams}|}">
+                    « Pierwsza
+                </a>
             </li>
+
+            <!-- POPRZEDNIA -->
             <li class="page-item" th:classappend="${tasks.first} ? 'disabled'">
-                <a class="page-link" th:href="@{/tasks(page=${tasks.number - 1}, ${currentParams})}">‹ Poprzednia</a>
+                <a class="page-link"
+                   th:href="@{|/tasks?page=${tasks.number - 1}${currentParams}|}">
+                    ‹ Poprzednia
+                </a>
             </li>
-            <li class="page-item" th:each="i : ${#numbers.sequence(Math.max(0, tasks.number - 2), Math.min(tasks.totalPages - 1, tasks.number + 2))}"
-                th:classappend="${i == tasks.number} ? 'active'">
-                <a class="page-link" th:href="@{/tasks(page=${i}, ${currentParams})}" th:text="${i + 1}"></a>
-            </li>
+
+            <!-- NUMERY STRON -->
+            <th:block th:with="start=${T(java.lang.Math).max(0, tasks.number - 2)},
+                               end=${T(java.lang.Math).min(tasks.totalPages - 1, tasks.number + 2)}">
+                <th:block th:each="i : ${#numbers.sequence(start, end)}">
+                    <li class="page-item" th:classappend="${i == tasks.number ? 'active' : ''}">
+                        <a class="page-link"
+                           th:href="@{|/tasks?page=${i}${currentParams}|}"
+                           th:text="${i + 1}">
+                        </a>
+                    </li>
+                </th:block>
+            </th:block>
+
+            <!-- NASTĘPNA -->
             <li class="page-item" th:classappend="${tasks.last} ? 'disabled'">
-                <a class="page-link" th:href="@{/tasks(page=${tasks.number + 1}, ${currentParams})}">Następna ›</a>
+                <a class="page-link"
+                   th:href="@{|/tasks?page=${tasks.number + 1}${currentParams}|}">
+                    Następna ›
+                </a>
             </li>
+
+            <!-- OSTATNIA -->
             <li class="page-item" th:classappend="${tasks.last} ? 'disabled'">
-                <a class="page-link" th:href="@{/tasks(page=${tasks.totalPages - 1}, ${currentParams})}">Ostatnia »</a>
+                <a class="page-link"
+                   th:href="@{|/tasks?page=${tasks.totalPages - 1}${currentParams}|}">
+                    Ostatnia »
+                </a>
             </li>
+
         </ul>
     </nav>
+
 </div>
 
-<th:block th:replace="fragments/footer :: footer"></th:block>
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
 </body>
 </html>

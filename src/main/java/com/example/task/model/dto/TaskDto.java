@@ -1,9 +1,9 @@
-// src/main/java/com/example/task/model/dto/TaskDto.java
 package com.example.task.model.dto;
 
 import com.example.task.model.entity.TaskStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,7 +15,10 @@ public class TaskDto {
     private String title;
     private String description;
     private TaskStatus status;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate dueDate;
+
     private Long categoryId;
     private String categoryName;
 
