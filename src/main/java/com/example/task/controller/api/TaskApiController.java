@@ -108,4 +108,30 @@ public class TaskApiController {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
     }
+    @Operation(summary = "Eksport statystyk zadań do CSV")
+    @GetMapping("/export/statistics/csv")
+    public ResponseEntity<byte[]> exportStatisticsCsv() throws IOException {
+
+        List<String[]> rows = taskService.getStatisticsForCsv();
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try (CSVPrinter printer = new CSVPrinter(
+                new OutputStreamWriter(out, "UTF-8"),
+                CSVFormat.DEFAULT.withDelimiter(';')
+        )) {
+            for (String[] row : rows) {
+                printer.printRecord((Object[]) row);
+            }
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("text/csv; charset=UTF-8"));
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=statystyki_" + LocalDate.now() + ".csv");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(out.toByteArray());
+    }
+
 }

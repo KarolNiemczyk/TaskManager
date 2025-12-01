@@ -9,6 +9,7 @@
         <div class="d-flex gap-2">
             <a th:href="@{/tasks/new}" class="btn btn-success btn-lg">+ Nowe zadanie</a>
             <a th:href="@{/tasks/download}" class="btn btn-outline-info btn-lg">Pobierz CSV</a>
+            <a th:href="@{/tasks/statistics/download}" class="btn btn-outline-primary btn-lg">Statystyki CSV</a>
         </div>
     </div>
 
@@ -40,20 +41,38 @@
             </select>
         </div>
 
-        <div class="col-md-2">
-            <input type="text" name="dueDateBefore"
-                   class="form-control"
-                   th:value="${param.dueDateBefore}"
-                   placeholder="yyyy-MM-dd"
-                   pattern="\d{4}-\d{2}-\d{2}"/>
-        </div>
-
         <div class="col-md-2 d-flex gap-2">
             <button type="submit" class="btn btn-primary w-100">Filtruj</button>
             <a th:href="@{/tasks}" class="btn btn-outline-secondary">Wyczyść</a>
         </div>
+        <div class="d-flex justify-content-end mb-3 gap-2">
+            <form th:action="@{/tasks}" method="get" class="d-flex gap-2 align-items-center">
+                <!-- zachowanie filtrów -->
+                <input type="hidden" name="title" th:value="${param.title}">
+                <input type="hidden" name="status" th:value="${param.status}">
+                <input type="hidden" name="categoryId" th:value="${param.categoryId}">
+                <input type="hidden" name="dueDateBefore" th:value="${param.dueDateBefore}">
+                <input type="hidden" name="dueDateAfter" th:value="${param.dueDateAfter}">
+                <input type="hidden" name="size" th:value="${param.size}">
+
+                <select name="sortProperty" class="form-select">
+                    <option value="createdAt" th:selected="${sortProperty=='createdAt'}">Data utworzenia</option>
+                    <option value="updatedAt" th:selected="${sortProperty=='updatedAt'}">Data aktualizacji</option>
+                    <option value="dueDate" th:selected="${sortProperty=='dueDate'}">Termin</option>
+                    <option value="title" th:selected="${sortProperty=='title'}">Tytuł</option>
+                </select>
+
+                <select name="sortDirection" class="form-select">
+                    <option value="asc" th:selected="${sortDirection=='asc'}">Rosnąco</option>
+                    <option value="desc" th:selected="${sortDirection=='desc'}">Malejąco</option>
+                </select>
+
+                <button type="submit" class="btn btn-outline-primary">Sortuj</button>
+            </form>
+        </div>
 
     </form>
+
 
     <!-- BRAK ZADAŃ -->
     <div th:if="${tasks.empty}" class="text-center py-5">
@@ -111,53 +130,39 @@
         </div>
     </div>
 
-    <!-- PAGINACJA 100% POPRAWNA -->
+    <!-- PAGINACJA -->
     <nav class="mt-5" th:if="${tasks != null and tasks.totalPages > 1}">
         <ul class="pagination justify-content-center">
 
-            <!-- PIERWSZA -->
             <li class="page-item" th:classappend="${tasks.first} ? 'disabled'">
                 <a class="page-link"
-                   th:href="@{|/tasks?page=0${currentParams}|}">
-                    « Pierwsza
-                </a>
+                   th:href="@{|/tasks?page=0${currentParams}|}">« Pierwsza</a>
             </li>
 
-            <!-- POPRZEDNIA -->
             <li class="page-item" th:classappend="${tasks.first} ? 'disabled'">
                 <a class="page-link"
-                   th:href="@{|/tasks?page=${tasks.number - 1}${currentParams}|}">
-                    ‹ Poprzednia
-                </a>
+                   th:href="@{|/tasks?page=${tasks.number - 1}${currentParams}|}">‹ Poprzednia</a>
             </li>
 
-            <!-- NUMERY STRON -->
             <th:block th:with="start=${T(java.lang.Math).max(0, tasks.number - 2)},
                                end=${T(java.lang.Math).min(tasks.totalPages - 1, tasks.number + 2)}">
                 <th:block th:each="i : ${#numbers.sequence(start, end)}">
                     <li class="page-item" th:classappend="${i == tasks.number ? 'active' : ''}">
                         <a class="page-link"
                            th:href="@{|/tasks?page=${i}${currentParams}|}"
-                           th:text="${i + 1}">
-                        </a>
+                           th:text="${i + 1}"></a>
                     </li>
                 </th:block>
             </th:block>
 
-            <!-- NASTĘPNA -->
             <li class="page-item" th:classappend="${tasks.last} ? 'disabled'">
                 <a class="page-link"
-                   th:href="@{|/tasks?page=${tasks.number + 1}${currentParams}|}">
-                    Następna ›
-                </a>
+                   th:href="@{|/tasks?page=${tasks.number + 1}${currentParams}|}">Następna ›</a>
             </li>
 
-            <!-- OSTATNIA -->
             <li class="page-item" th:classappend="${tasks.last} ? 'disabled'">
                 <a class="page-link"
-                   th:href="@{|/tasks?page=${tasks.totalPages - 1}${currentParams}|}">
-                    Ostatnia »
-                </a>
+                   th:href="@{|/tasks?page=${tasks.totalPages - 1}${currentParams}|}">Ostatnia »</a>
             </li>
 
         </ul>

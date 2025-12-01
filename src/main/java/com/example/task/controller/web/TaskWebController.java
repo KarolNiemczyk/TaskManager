@@ -42,24 +42,27 @@ public class TaskWebController {
             @RequestParam(required = false) String title,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "9") int size,
-            @RequestParam(defaultValue = "createdAt,desc") String sort,
+            @RequestParam(defaultValue = "createdAt") String sortProperty,
+            @RequestParam(defaultValue = "desc") String sortDirection,
             Model model) {
 
-        // Wywołanie serwisu, który sam obsłuży paginację i sortowanie
+        String sort = sortProperty + "," + sortDirection;
+
         Page<TaskDto> tasks = taskService.getTasksWithFilters(
                 status, categoryId, dueDateBefore, dueDateAfter, title, page, size, sort
         );
 
         model.addAttribute("tasks", tasks);
         model.addAttribute("categories", categoryService.getAllCategories());
-        model.addAttribute("currentParams", buildQueryParams(status, categoryId, dueDateBefore, dueDateAfter, title, size, sort));
+        model.addAttribute("currentParams", buildQueryParams(status, categoryId, dueDateBefore, dueDateAfter, title, size, sortProperty, sortDirection));
+        model.addAttribute("sortProperty", sortProperty);
+        model.addAttribute("sortDirection", sortDirection);
 
         return "tasks/list";
     }
 
-
     private String buildQueryParams(TaskStatus status, Long categoryId, LocalDate before, LocalDate after,
-                                    String title, int size, String sort) {
+                                    String title, int size, String sortProperty, String sortDirection) {
 
         StringJoiner joiner = new StringJoiner("&");
 
@@ -70,12 +73,14 @@ public class TaskWebController {
         if (title != null && !title.trim().isEmpty()) joiner.add("title=" + title.trim());
 
         joiner.add("size=" + size);
-        if (sort != null && !sort.isBlank()) joiner.add("sort=" + sort);
+        if (sortProperty != null && !sortProperty.isBlank()) joiner.add("sortProperty=" + sortProperty);
+        if (sortDirection != null && !sortDirection.isBlank()) joiner.add("sortDirection=" + sortDirection);
 
         String params = joiner.toString();
 
         return params.isEmpty() ? "" : "&" + params;
     }
+
 
     @GetMapping("/tasks/new")
     public String newTask(Model model) {
@@ -147,6 +152,20 @@ public class TaskWebController {
                         t.getStatus(),
                         escapeCsv(t.getCategoryName() != null ? t.getCategoryName() : ""),
                         t.getDueDate() != null ? t.getDueDate().toString() : "");
+            }
+        }
+    }
+    @GetMapping("/tasks/statistics/download")
+    public void downloadStatisticsCsv(HttpServletResponse response) throws IOException {
+
+        response.setContentType("text/csv; charset=UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=statystyki.csv");
+
+        List<String[]> rows = taskService.getStatisticsForCsv();
+
+        try (PrintWriter writer = response.getWriter()) {
+            for (String[] row : rows) {
+                writer.println(String.join(";", row));
             }
         }
     }
