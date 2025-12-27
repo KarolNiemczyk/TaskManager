@@ -8,7 +8,7 @@ import com.example.task.service.TaskService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -63,24 +63,21 @@ public class TaskWebController {
 
     private String buildQueryParams(TaskStatus status, Long categoryId, LocalDate before, LocalDate after,
                                     String title, int size, String sortProperty, String sortDirection) {
-
         StringJoiner joiner = new StringJoiner("&");
 
         if (status != null) joiner.add("status=" + status);
         if (categoryId != null) joiner.add("categoryId=" + categoryId);
         if (before != null) joiner.add("dueDateBefore=" + before);
         if (after != null) joiner.add("dueDateAfter=" + after);
-        if (title != null && !title.trim().isEmpty()) joiner.add("title=" + title.trim());
+        if (title != null && !title.isBlank()) joiner.add("title=" + title.trim());
 
         joiner.add("size=" + size);
-        if (sortProperty != null && !sortProperty.isBlank()) joiner.add("sortProperty=" + sortProperty);
-        if (sortDirection != null && !sortDirection.isBlank()) joiner.add("sortDirection=" + sortDirection);
+        joiner.add("sortProperty=" + (sortProperty != null ? sortProperty : "createdAt"));
+        joiner.add("sortDirection=" + (sortDirection != null ? sortDirection : "desc"));
 
         String params = joiner.toString();
-
         return params.isEmpty() ? "" : "&" + params;
     }
-
 
     @GetMapping("/tasks/new")
     public String newTask(Model model) {
@@ -140,7 +137,7 @@ public class TaskWebController {
         response.setContentType("text/csv; charset=UTF-8");
         response.setHeader("Content-Disposition", "attachment; filename=zadania.csv");
 
-        List<TaskDto> tasks = taskService.getAllTasksForCsv();
+        List<TaskDto> tasks = taskService.getAllTasksJdbc();
 
         try (PrintWriter writer = response.getWriter()) {
             writer.println("ID;Tytuł;Opis;Status;Kategoria;Termin");
@@ -148,16 +145,16 @@ public class TaskWebController {
                 writer.printf("%d;%s;%s;%s;%s;%s%n",
                         t.getId(),
                         escapeCsv(t.getTitle()),
-                        escapeCsv(t.getDescription() != null ? t.getDescription() : ""),
+                        escapeCsv(t.getDescription()),
                         t.getStatus(),
-                        escapeCsv(t.getCategoryName() != null ? t.getCategoryName() : ""),
-                        t.getDueDate() != null ? t.getDueDate().toString() : "");
+                        escapeCsv(t.getCategoryName()),
+                        t.getDueDate() != null ? t.getDueDate() : ""
+                );
             }
         }
     }
     @GetMapping("/tasks/statistics/download")
     public void downloadStatisticsCsv(HttpServletResponse response) throws IOException {
-
         response.setContentType("text/csv; charset=UTF-8");
         response.setHeader("Content-Disposition", "attachment; filename=statystyki.csv");
 

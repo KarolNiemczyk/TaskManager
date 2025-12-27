@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -33,7 +34,6 @@ import java.util.List;
 public class TaskApiController {
 
     private final TaskService taskService;
-    private final TaskRepository taskRepository; // tylko do CSV
 
     @Operation(summary = "Pobierz listę zadań z filtrami i paginacją")
     @GetMapping
@@ -54,20 +54,24 @@ public class TaskApiController {
     @Operation(summary = "Eksport wszystkich zadań do CSV")
     @GetMapping("/export/csv")
     public ResponseEntity<byte[]> exportTasksToCsv() throws IOException {
-        List<Task> allTasks = taskRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        List<TaskDto> allTasks = taskService.getAllTasksJdbc();
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (CSVPrinter printer = new CSVPrinter(new OutputStreamWriter(out, "UTF-8"), CSVFormat.DEFAULT
-                .withHeader("ID", "Tytuł", "Opis", "Status", "Termin", "Kategoria", "Utworzono", "Zaktualizowano"))) {
+        try (CSVPrinter printer = new CSVPrinter(
+                new OutputStreamWriter(out, StandardCharsets.UTF_8),
+                CSVFormat.DEFAULT.withHeader(
+                        "ID", "Tytuł", "Opis", "Status", "Termin",
+                        "Kategoria", "Utworzono", "Zaktualizowano"))) {
 
-            for (Task t : allTasks) {
+            for (TaskDto t : allTasks) {
                 printer.printRecord(
                         t.getId(),
                         t.getTitle(),
                         t.getDescription() != null ? t.getDescription() : "",
-                        t.getStatus().toString(),
-                        t.getDueDate() != null ? t.getDueDate().toString() : "",
-                        t.getCategory() != null ? t.getCategory().getName() : "Brak",
+                        t.getStatus() != null ? t.getStatus().name() : "",
+                        t.getDueDate() != null ? t.getDueDate() : "",
+                        t.getCategoryName() != null ? t.getCategoryName() : "Brak",
                         t.getCreatedAt(),
                         t.getUpdatedAt()
                 );
@@ -76,13 +80,14 @@ public class TaskApiController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType("text/csv; charset=UTF-8"));
-        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=zadania_" + LocalDate.now() + ".csv");
-        headers.set(HttpHeaders.CACHE_CONTROL, "must-revalidate, post-check=0, pre-check=0");
+        headers.set(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=zadania_" + LocalDate.now() + ".csv");
 
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(out.toByteArray());
     }
+
 
     @Operation(summary = "Pobierz zadanie po ID")
     @GetMapping("/{id}")
@@ -132,6 +137,13 @@ public class TaskApiController {
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(out.toByteArray());
+    }
+
+    @Operation(summary = "Pobierz zadania przez JDBC (bez paginacji)")
+    @GetMapping("/jdbc")
+    public ResponseEntity<List<TaskDto>> getTasksJdbc() {
+        List<TaskDto> list = taskService.getAllTasksJdbc();
+        return ResponseEntity.ok(list);
     }
 
 }

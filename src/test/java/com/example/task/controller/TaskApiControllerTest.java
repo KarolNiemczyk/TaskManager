@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
@@ -20,10 +21,12 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(TaskApiController.class)
+@WithMockUser
 class TaskApiControllerTest {
 
     @Autowired
@@ -63,6 +66,7 @@ class TaskApiControllerTest {
         Mockito.when(taskService.createTask(any())).thenReturn(dto);
 
         mockMvc.perform(post("/api/v1/tasks")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createDto)))
                 .andExpect(status().isCreated())
@@ -80,6 +84,7 @@ class TaskApiControllerTest {
         Mockito.when(taskService.updateTask(anyLong(), any())).thenReturn(dto);
 
         mockMvc.perform(put("/api/v1/tasks/1")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createDto)))
                 .andExpect(status().isOk())
@@ -88,7 +93,7 @@ class TaskApiControllerTest {
 
     @Test
     void deleteTask_ShouldReturnNoContent() throws Exception {
-        mockMvc.perform(delete("/api/v1/tasks/1"))
+        mockMvc.perform(delete("/api/v1/tasks/1").with(csrf()))
                 .andExpect(status().isNoContent());
 
         Mockito.verify(taskService).deleteTask(1L);

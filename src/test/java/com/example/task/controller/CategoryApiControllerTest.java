@@ -10,16 +10,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(CategoryApiController.class)
+@WithMockUser
 class CategoryApiControllerTest {
 
     @Autowired
@@ -65,6 +68,7 @@ class CategoryApiControllerTest {
         }});
 
         mockMvc.perform(post("/api/v1/categories")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
@@ -81,6 +85,7 @@ class CategoryApiControllerTest {
         }});
 
         mockMvc.perform(put("/api/v1/categories/1")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
@@ -89,7 +94,7 @@ class CategoryApiControllerTest {
 
     @Test
     void deleteCategory_ShouldReturnNoContent() throws Exception {
-        mockMvc.perform(delete("/api/v1/categories/1"))
+        mockMvc.perform(delete("/api/v1/categories/1").with(csrf()))
                 .andExpect(status().isNoContent());
 
         Mockito.verify(categoryService).deleteCategory(1L);

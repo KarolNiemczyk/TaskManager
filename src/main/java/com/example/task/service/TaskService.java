@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import com.example.task.repository.jdbc.TaskJdbcDao;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,8 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final CategoryRepository categoryRepository;
     private final TaskMapper taskMapper;
+    private final TaskJdbcDao taskJdbcDao;
+
     public Page<TaskDto> getTasksWithFilters(
             TaskStatus status,
             Long categoryId,
@@ -109,10 +112,6 @@ public class TaskService {
         taskRepository.deleteById(id);
     }
 
-    public List<TaskDto> getAllTasksForCsv() {
-        return getAllTasks(null, null, null, null, null, Pageable.unpaged()).getContent();
-    }
-
     public TaskCreateDto toCreateDto(TaskDto dto) {
         TaskCreateDto createDto = new TaskCreateDto();
         createDto.setTitle(dto.getTitle());
@@ -142,6 +141,11 @@ public class TaskService {
 
         return new StatisticsDto(total, byStatus, byCategory);
     }
+    @Transactional(readOnly = true)
+    public List<TaskDto> getAllTasksJdbc() {
+        return taskJdbcDao.findAllAsDtos();
+    }
+
     @Transactional(readOnly = true)
     public List<String[]> getStatisticsForCsv() {
         StatisticsDto stats = getTaskStatistics();
