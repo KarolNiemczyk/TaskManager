@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://db:5432/taskmanager}
-    username: ${SPRING_DATASOURCE_USERNAME:admin}
-    password: ${SPRING_DATASOURCE_PASSWORD:secret123}
+    url: jdbc:postgresql://db:5432/taskmanager
+    username: admin
+    password: secret123
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -12,7 +12,6 @@ spring:
 
   flyway:
     enabled: true
-
 springdoc:
   cache:
     disabled: true
@@ -22,5 +21,6 @@ springdoc:
   swagger-ui:
     path: /swagger
 
+
 server:
-  port: ${PORT:8080}  # ważne dla Render, Heroku itp.
+  port: 8080
