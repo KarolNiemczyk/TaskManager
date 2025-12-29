@@ -1,7 +1,7 @@
 package com.example.task.repository.jdbc;
 
 import com.example.task.model.dto.TaskDto;
-import com.example.task.model.entity.TaskStatus;
+import com.example.task.model.TaskStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;

@@ -7,7 +7,7 @@ import com.example.task.model.dto.TaskDto;
 import com.example.task.model.dto.StatisticsDto;
 import com.example.task.model.entity.Category;
 import com.example.task.model.entity.Task;
-import com.example.task.model.entity.TaskStatus;
+import com.example.task.model.TaskStatus;
 import com.example.task.repository.CategoryRepository;
 import com.example.task.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;

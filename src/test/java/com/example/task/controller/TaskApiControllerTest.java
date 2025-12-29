@@ -3,7 +3,7 @@ package com.example.task.controller;
 import com.example.task.controller.api.TaskApiController;
 import com.example.task.model.dto.TaskCreateDto;
 import com.example.task.model.dto.TaskDto;
-import com.example.task.model.entity.TaskStatus;
+import com.example.task.model.TaskStatus;
 import com.example.task.repository.TaskRepository;
 import com.example.task.service.TaskService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,9 +15,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.time.LocalDate;
-import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;

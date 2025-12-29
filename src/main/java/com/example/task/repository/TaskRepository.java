@@ -1,7 +1,7 @@
 package com.example.task.repository;
 
 import com.example.task.model.entity.Task;
-import com.example.task.model.entity.TaskStatus;
+import com.example.task.model.TaskStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

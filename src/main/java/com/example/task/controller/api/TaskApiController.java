@@ -2,9 +2,7 @@ package com.example.task.controller.api;
 
 import com.example.task.model.dto.TaskCreateDto;
 import com.example.task.model.dto.TaskDto;
-import com.example.task.model.entity.Task;
-import com.example.task.model.entity.TaskStatus;
-import com.example.task.repository.TaskRepository;
+import com.example.task.model.TaskStatus;
 import com.example.task.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

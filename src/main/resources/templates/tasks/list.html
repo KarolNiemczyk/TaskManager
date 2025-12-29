@@ -14,7 +14,7 @@
         </div>
     </div>
 
-    <!-- FILTRY + SORTOWANIE (JEDEN FORM) -->
+    <!-- FILTRY + SORTOWANIE -->
     <form th:action="@{/tasks}" method="get"
           class="row g-3 mb-4 bg-light p-4 rounded shadow-sm">
 
@@ -68,7 +68,6 @@
             <button type="submit" class="btn btn-primary">Zastosuj</button>
             <a th:href="@{/tasks}" class="btn btn-outline-secondary">Wyczyść</a>
         </div>
-
     </form>
 
     <!-- BRAK ZADAŃ -->
@@ -81,7 +80,6 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" th:unless="${tasks.empty}">
         <div class="col" th:each="t : ${tasks.content}">
             <div class="card h-100 shadow">
-
                 <div class="card-body">
                     <h5 th:text="${t.title}">Tytuł</h5>
                     <p th:text="${t.description ?: 'Brak opisu'}"></p>
@@ -104,20 +102,84 @@
                         <button class="btn btn-outline-danger btn-sm">Usuń</button>
                     </form>
                 </div>
-
             </div>
         </div>
     </div>
 
     <!-- PAGINACJA -->
-    <nav class="mt-5" th:if="${tasks.totalPages > 1}">
+    <nav class="mt-5" th:if="${tasks != null and tasks.totalPages > 1}">
         <ul class="pagination justify-content-center">
-            <li class="page-item" th:each="i : ${#numbers.sequence(0, tasks.totalPages - 1)}"
+
+            <li class="page-item" th:classappend="${tasks.first} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/tasks(page=0,
+                                     size=${size},
+                                     title=${title},
+                                     status=${status},
+                                     categoryId=${categoryId},
+                                     sortProperty=${sortProperty},
+                                     sortDirection=${sortDirection})}">
+                    « Pierwsza
+                </a>
+            </li>
+
+            <li class="page-item" th:classappend="${tasks.first} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/tasks(page=${tasks.number - 1},
+                                     size=${size},
+                                     title=${title},
+                                     status=${status},
+                                     categoryId=${categoryId},
+                                     sortProperty=${sortProperty},
+                                     sortDirection=${sortDirection})}">
+                    ‹ Poprzednia
+                </a>
+            </li>
+
+            <li class="page-item"
+                th:each="i : ${#numbers.sequence(
+                    T(java.lang.Math).max(0, tasks.number - 2),
+                    T(java.lang.Math).min(tasks.totalPages - 1, tasks.number + 2)
+                )}"
                 th:classappend="${i == tasks.number} ? 'active'">
                 <a class="page-link"
-                   th:href="@{|/tasks?page=${i}&size=${size}&title=${title}&status=${status}&categoryId=${categoryId}&sortProperty=${sortProperty}&sortDirection=${sortDirection}|}"
-                   th:text="${i + 1}"></a>
+                   th:href="@{/tasks(page=${i},
+                                     size=${size},
+                                     title=${title},
+                                     status=${status},
+                                     categoryId=${categoryId},
+                                     sortProperty=${sortProperty},
+                                     sortDirection=${sortDirection})}"
+                   th:text="${i + 1}">
+                </a>
             </li>
+
+            <li class="page-item" th:classappend="${tasks.last} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/tasks(page=${tasks.number + 1},
+                                     size=${size},
+                                     title=${title},
+                                     status=${status},
+                                     categoryId=${categoryId},
+                                     sortProperty=${sortProperty},
+                                     sortDirection=${sortDirection})}">
+                    Następna ›
+                </a>
+            </li>
+
+            <li class="page-item" th:classappend="${tasks.last} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/tasks(page=${tasks.totalPages - 1},
+                                     size=${size},
+                                     title=${title},
+                                     status=${status},
+                                     categoryId=${categoryId},
+                                     sortProperty=${sortProperty},
+                                     sortDirection=${sortDirection})}">
+                    Ostatnia »
+                </a>
+            </li>
+
         </ul>
     </nav>
 

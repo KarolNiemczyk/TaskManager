@@ -6,7 +6,7 @@ import com.example.task.model.dto.TaskCreateDto;
 import com.example.task.model.dto.TaskDto;
 import com.example.task.model.entity.Category;
 import com.example.task.model.entity.Task;
-import com.example.task.model.entity.TaskStatus;
+import com.example.task.model.TaskStatus;
 import com.example.task.repository.CategoryRepository;
 import com.example.task.repository.TaskRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 

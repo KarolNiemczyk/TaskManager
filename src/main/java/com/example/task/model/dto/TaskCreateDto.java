@@ -1,6 +1,6 @@
 package com.example.task.model.dto;
 
-import com.example.task.model.entity.TaskStatus;
+import com.example.task.model.TaskStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

@@ -1,5 +1,6 @@
 package com.example.task.model.entity;
 
+import com.example.task.model.TaskStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

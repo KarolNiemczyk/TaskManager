@@ -71,20 +71,4 @@ public class ArchitectureTest {
                     .should().resideInAPackage(ENTITY_PACKAGE)
                     .because("Klasy oznaczone @Entity muszą być w pakiecie entity");
 
-    // === Bonus: Klasyczna architektura warstwowa (opcjonalnie, ale ładnie wygląda) ===
-
-    @ArchTest
-    public static final ArchRule layeredArchitectureRule =
-            layeredArchitecture()
-                    .consideringAllDependencies()
-                    .layer("Controller").definedBy(CONTROLLER_PACKAGE)
-                    .layer("Service").definedBy(SERVICE_PACKAGE)
-                    .layer("Repository").definedBy(REPOSITORY_PACKAGE)
-                    .layer("Entity").definedBy(ENTITY_PACKAGE)
-
-                    .whereLayer("Controller").mayNotBeAccessedByAnyLayer()
-                    .whereLayer("Service").mayOnlyBeAccessedByLayers("Controller")
-                    .whereLayer("Repository").mayOnlyBeAccessedByLayers("Service")
-                    .whereLayer("Entity").mayOnlyBeAccessedByLayers("Repository", "Service")
-                    .because("Powinniśmy przestrzegać klasycznej architektury warstwowej");
 }

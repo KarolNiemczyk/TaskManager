@@ -1,26 +1,14 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://db:5432/taskmanager}
-    username: ${SPRING_DATASOURCE_USERNAME:admin}
-    password: ${SPRING_DATASOURCE_PASSWORD:secret123}
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      connection-timeout: 60000     # czekaj max 60 sekund na połączenie
-      initialization-fail-timeout: 60000  # nie padaj od razu, czekaj
-      maximum-pool-size: 10
-
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  flyway:
+    enabled: false
   jpa:
     hibernate:
-      ddl-auto: validate
-    show-sql: true
-    properties:
-      hibernate:
-        temp:
-          use_jdbc_metadata_defaults: false
-
-  flyway:
-    enabled: true
-    # Flyway będzie czekał razem z Hikari – nie potrzebujemy dodatkowych ustawień
-
-server:
-  port: ${PORT:8080}
+      ddl-auto: update
+    show-sql: false
+  main:
+    allow-bean-definition-overriding: true

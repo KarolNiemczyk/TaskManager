@@ -1,6 +1,6 @@
 package com.example.task.model.dto;
 
-import com.example.task.model.entity.TaskStatus;
+import com.example.task.model.TaskStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
