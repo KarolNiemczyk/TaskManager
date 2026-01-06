@@ -14,7 +14,6 @@
         </div>
     </div>
 
-    <!-- FILTRY + SORTOWANIE -->
     <form th:action="@{/tasks}" method="get"
           class="row g-3 mb-4 bg-light p-4 rounded shadow-sm">
 
@@ -84,10 +83,22 @@
                     <h5 th:text="${t.title}">Tytuł</h5>
                     <p th:text="${t.description ?: 'Brak opisu'}"></p>
 
+                    <!-- STATUS -->
+                    <div class="mb-2">
+                        <span class="badge"
+                              th:text="${t.status}"
+                              th:classappend="
+                                ${t.status.name() == 'TODO'} ? 'bg-secondary' :
+                                (${t.status.name() == 'IN_PROGRESS'} ? 'bg-warning text-dark' :
+                                'bg-success')">
+                        </span>
+                    </div>
+
                     <div class="small">
                         <div th:if="${t.categoryName}">
                             <strong th:text="${t.categoryName}"></strong>
                         </div>
+
                         <div th:if="${t.dueDate}">
                             <span th:text="${#temporals.format(t.dueDate, 'yyyy-MM-dd')}"></span>
                         </div>

@@ -10,11 +10,11 @@ import com.example.task.model.entity.Task;
 import com.example.task.model.TaskStatus;
 import com.example.task.repository.CategoryRepository;
 import com.example.task.repository.TaskRepository;
+import com.example.task.repository.jdbc.TaskJdbcDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import com.example.task.repository.jdbc.TaskJdbcDao;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -112,15 +112,8 @@ public class TaskService {
         taskRepository.deleteById(id);
     }
 
-    public TaskCreateDto toCreateDto(TaskDto dto) {
-        TaskCreateDto createDto = new TaskCreateDto();
-        createDto.setTitle(dto.getTitle());
-        createDto.setDescription(dto.getDescription());
-        createDto.setStatus(dto.getStatus());
-        createDto.setDueDate(dto.getDueDate());
-        createDto.setCategoryId(dto.getCategoryId());
-        return createDto;
-    }
+    // -------------------- Statistics --------------------
+
     @Transactional(readOnly = true)
     public StatisticsDto getTaskStatistics() {
         List<Task> tasks = taskRepository.findAll();
@@ -141,10 +134,6 @@ public class TaskService {
 
         return new StatisticsDto(total, byStatus, byCategory);
     }
-    @Transactional(readOnly = true)
-    public List<TaskDto> getAllTasksJdbc() {
-        return taskJdbcDao.findAllAsDtos();
-    }
 
     @Transactional(readOnly = true)
     public List<String[]> getStatisticsForCsv() {
@@ -152,19 +141,15 @@ public class TaskService {
 
         Map<String, Long> byStatus = stats.getTasksByStatus();
         Map<String, Long> byCategory = stats.getTasksByCategory();
-        long total = stats.getTotalTasks();   // <-- tutaj poprawnie
+        long total = stats.getTotalTasks();
 
-// Lista do CSV
         List<String[]> rows = new java.util.ArrayList<>();
         rows.add(new String[]{"Typ", "Wartość"});
         rows.add(new String[]{"Liczba wszystkich zadań", String.valueOf(total)});
-
-// Statusy
         rows.add(new String[]{"Zadania TODO", String.valueOf(byStatus.getOrDefault("TODO", 0L))});
         rows.add(new String[]{"W trakcie", String.valueOf(byStatus.getOrDefault("IN_PROGRESS", 0L))});
         rows.add(new String[]{"Zrobione", String.valueOf(byStatus.getOrDefault("DONE", 0L))});
 
-// Kategorie — dynamiczne
         for (Map.Entry<String, Long> entry : byCategory.entrySet()) {
             rows.add(new String[]{"Kategoria: " + entry.getKey(), String.valueOf(entry.getValue())});
         }
@@ -177,6 +162,59 @@ public class TaskService {
                 categoryRepository.findById(categoryId)
                         .orElseThrow(() -> new ResourceNotFoundException("Kategoria o id " + categoryId + " nie istnieje"))
                 : null;
+    }
+
+    public TaskCreateDto toCreateDto(TaskDto dto) {
+        TaskCreateDto createDto = new TaskCreateDto();
+        createDto.setTitle(dto.getTitle());
+        createDto.setDescription(dto.getDescription());
+        createDto.setStatus(dto.getStatus());
+        createDto.setDueDate(dto.getDueDate());
+        createDto.setCategoryId(dto.getCategoryId());
+        return createDto;
+    }
+
+    // -------------------- JDBC methods --------------------
+
+    @Transactional(readOnly = true)
+    public List<TaskDto> getAllTasksJdbc() {
+        return taskJdbcDao.findAllAsDtos();
+    }
+
+    @Transactional
+    public TaskDto createTaskJdbc(TaskCreateDto dto) {
+        TaskDto taskDto = new TaskDto();
+        taskDto.setTitle(dto.getTitle());
+        taskDto.setDescription(dto.getDescription());
+        taskDto.setStatus(dto.getStatus());
+        taskDto.setDueDate(dto.getDueDate());
+        taskDto.setCategoryId(dto.getCategoryId());
+        return taskJdbcDao.insert(taskDto);
+    }
+
+    @Transactional
+    public TaskDto updateTaskJdbc(Long id, TaskCreateDto dto) {
+        TaskDto existing = taskJdbcDao.findAllAsDtos().stream()
+                .filter(t -> t.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Zadanie o id " + id + " nie istnieje"));
+
+        existing.setTitle(dto.getTitle());
+        existing.setDescription(dto.getDescription());
+        existing.setStatus(dto.getStatus());
+        existing.setDueDate(dto.getDueDate());
+        existing.setCategoryId(dto.getCategoryId());
+
+        taskJdbcDao.update(existing);
+        return existing;
+    }
+
+    @Transactional
+    public void deleteTaskJdbc(Long id) {
+        int rows = taskJdbcDao.delete(id);
+        if (rows == 0) {
+            throw new ResourceNotFoundException("Zadanie o id " + id + " nie istnieje");
+        }
     }
 
 }

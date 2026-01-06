@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
-    private final TaskMapper taskMapper; // nie używamy, ale zostawiamy
 
     public List<CategoryDto> getAllCategories() {
         return categoryRepository.findAll().stream()

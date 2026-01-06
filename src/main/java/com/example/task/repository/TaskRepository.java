@@ -46,4 +46,15 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     );
 
     Optional<Task> findByIdAndCategoryId(Long id, Long categoryId);
+
+    @Query("""
+SELECT t FROM Task t
+JOIN t.category c
+WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :categoryName, '%'))
+""")
+    Page<Task> findTasksByCategoryNameLike(
+            @Param("categoryName") String categoryName,
+            Pageable pageable
+    );
+
 }
