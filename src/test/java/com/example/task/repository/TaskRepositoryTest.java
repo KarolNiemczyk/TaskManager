@@ -86,6 +86,32 @@ class TaskRepositoryTest {
 
         assertThat(result.getContent()).hasSize(1);
     }
+    @Test
+    void findTasksByCategoryNameLike_ShouldReturnTasks() {
+        Category cat1 = new Category();
+        cat1.setName("Work");
+        cat1 = categoryRepository.save(cat1);
+
+        Category cat2 = new Category();
+        cat2.setName("Home");
+        cat2 = categoryRepository.save(cat2);
+
+        Task t1 = createTask("Task 1", TaskStatus.TODO, cat1);
+        Task t2 = createTask("Task 2", TaskStatus.TODO, cat2);
+        Task t3 = createTask("Task 3", TaskStatus.TODO, null);
+
+        taskRepository.save(t1);
+        taskRepository.save(t2);
+        taskRepository.save(t3);
+
+        Page<Task> result = taskRepository.findTasksByCategoryNameLike("work", PageRequest.of(0, 10));
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getTitle()).isEqualTo("Task 1");
+
+        // case-insensitive test
+        result = taskRepository.findTasksByCategoryNameLike("WORK", PageRequest.of(0, 10));
+        assertThat(result.getTotalElements()).isEqualTo(1);
+    }
 
     @Test
     void searchTasks_WithJoinAndFilters_ShouldReturnResult() {
